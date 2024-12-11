@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../services/image_service.dart';
+import '../services/ai_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,37 +11,55 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  File? _selectedImage;
-  final ImageService _imageService = ImageService();
+  final TextEditingController _searchController = TextEditingController();
+  final AIService _aiService = AIService();
+  final ImagePicker _imagePicker = ImagePicker();
 
-  Future<void> _selectImage() async {
-    final File? image = await _imageService.pickImage(ImageSource.gallery);
+  Future<void> _searchDish() async {
+    if (_searchController.text.isNotEmpty) {
+      final result = await _aiService.searchByName(_searchController.text);
+      _navigateToRecipeDetails(result);
+    }
+  }
+
+  Future<void> _uploadPhoto() async {
+    final XFile? image = await _imagePicker.pickImage(source: ImageSource.gallery);
     if (image != null) {
-      setState(() {
-        _selectedImage = image;
-      });
-
-      Navigator.pushNamed(
-        context,
-        '/recipeDetails',
-        arguments: {'imageFile': image},
-      );
+      final result = await _aiService.searchByImage(File(image.path));
+      _navigateToRecipeDetails(result);
     }
   }
 
   Future<void> _takePhoto() async {
-    final File? image = await _imageService.pickImage(ImageSource.camera);
+    final XFile? image = await _imagePicker.pickImage(source: ImageSource.camera);
     if (image != null) {
-      setState(() {
-        _selectedImage = image;
-      });
-
-      Navigator.pushNamed(
-        context,
-        '/recipeDetails',
-        arguments: {'imageFile': image},
-      );
+      final result = await _aiService.searchByImage(File(image.path));
+      _navigateToRecipeDetails(result);
     }
+  }
+
+  void _navigateToRecipeDetails(Map<String, dynamic>? data) {
+    if (data != null && data.isNotEmpty) {
+      Navigator.pushNamed(context, '/recipeDetails', arguments: {'recipeData': data});
+    } else {
+      _showErrorDialog('Recipe not found.');
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -57,16 +75,13 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             TextField(
+              controller: _searchController,
               decoration: InputDecoration(
                 labelText: 'Search for a dish',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
+                border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.search),
-                  onPressed: () {
-                    // Handle search logic
-                  },
+                  onPressed: _searchDish,
                 ),
               ),
             ),
@@ -77,9 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 20),
             Center(
               child: ElevatedButton.icon(
-                onPressed: () async {
-                  await _selectImage();
-                },
+                onPressed: _uploadPhoto,
                 icon: const Icon(Icons.upload_file),
                 label: const Text('Upload a Photo'),
               ),
@@ -87,9 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 10),
             Center(
               child: ElevatedButton.icon(
-                onPressed: () async {
-                  await _takePhoto();
-                },
+                onPressed: _takePhoto,
                 icon: const Icon(Icons.camera_alt),
                 label: const Text('Take a Photo'),
               ),
