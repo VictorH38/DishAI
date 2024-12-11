@@ -14,7 +14,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   final AIService _aiService = AIService();
   final ImagePicker _imagePicker = ImagePicker();
-
   bool _isLoading = false;
 
   Future<void> _searchDish() async {
@@ -23,9 +22,9 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoading = true;
       });
 
-      final result = await _aiService.searchByName(_searchController.text);
+      final results = await _aiService.searchByName(_searchController.text);
       _searchController.clear();
-      _navigateToRecipeDetails(result);
+      _navigateToRecipeDetails(results);
 
       setState(() {
         _isLoading = false;
@@ -39,8 +38,10 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _isLoading = true;
       });
-      final result = await _aiService.searchByImage(File(image.path));
-      _navigateToRecipeDetails(result);
+
+      final results = await _aiService.searchByImage(File(image.path));
+      _navigateToRecipeDetails(results);
+
       setState(() {
         _isLoading = false;
       });
@@ -53,19 +54,25 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _isLoading = true;
       });
-      final result = await _aiService.searchByImage(File(image.path));
-      _navigateToRecipeDetails(result);
+
+      final results = await _aiService.searchByImage(File(image.path));
+      _navigateToRecipeDetails(results);
+
       setState(() {
         _isLoading = false;
       });
     }
   }
 
-  void _navigateToRecipeDetails(Map<String, dynamic>? data) {
-    if (data != null && data.isNotEmpty) {
-      Navigator.pushNamed(context, '/recipeDetails', arguments: {'recipeData': data});
+  void _navigateToRecipeDetails(List<Map<String, dynamic>> results) {
+    if (results.isNotEmpty) {
+      Navigator.pushNamed(
+        context,
+        '/recipeDetails',
+        arguments: results,
+      );
     } else {
-      _showErrorDialog('Recipe not found.');
+      _showErrorDialog('No recipes found.');
     }
   }
 

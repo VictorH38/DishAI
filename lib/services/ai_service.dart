@@ -9,23 +9,48 @@ class AIService {
   final String _googleCloudApiKey = dotenv.env['GOOGLE_CLOUD_API_KEY'] ?? '';
 
   // Search by Name using Spoonacular
-  Future<Map<String, dynamic>?> searchByName(String query) async {
+  Future<List<Map<String, dynamic>>> searchByName(String query) async {
     final response = await http.get(
-      Uri.parse('$_apiBaseUrl/recipes/complexSearch?query=$query&apiKey=$_apiKey'),
+      Uri.parse('$_apiBaseUrl/recipes/complexSearch?query=$query&apiKey=$_apiKey&instructionsRequired=true&addRecipeInformation=true&fillIngredients=true'),
     );
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return data['results'].isNotEmpty ? data['results'][0] : null;
+
+      if (data['results'] != null && data['results'] is List) {
+        final filteredResults = (data['results'] as List).where((result) {
+          // Check if both ingredients and instructions exist and are not empty
+          final ingredients = result['extendedIngredients'];
+          final instructions = result['analyzedInstructions'];
+          return ingredients != null &&
+              ingredients.isNotEmpty &&
+              instructions != null &&
+              instructions.isNotEmpty;
+        }).map((result) {
+          // Extract and format the instructions into a single string
+          final instructionSteps = result['analyzedInstructions'][0]['steps']
+              .map((step) => step['step'])
+              .join('\n');
+
+          return {
+            'id': result['id'],
+            'title': result['title'],
+            'image': result['image'],
+            'ingredients': result['extendedIngredients'],
+            'instructions': instructionSteps,
+          };
+        }).toList();
+
+        return filteredResults;
+      }
     }
-    return null;
+
+    return [];
   }
 
   // Search by Image using Google Cloud Vision API
-  Future<Map<String, dynamic>?> searchByImage(File image) async {
-    // Use Google Cloud Vision API to detect dish label
+  Future<List<Map<String, dynamic>>> searchByImage(File image) async {
     final visionUrl = 'https://vision.googleapis.com/v1/images:annotate?key=$_googleCloudApiKey';
-
     final base64Image = base64Encode(image.readAsBytesSync());
     final requestPayload = {
       "requests": [
@@ -46,16 +71,13 @@ class AIService {
 
     if (response.statusCode == 200) {
       final visionData = jsonDecode(response.body);
-
-      // Extract the first detected label
       final labels = visionData['responses'][0]['labelAnnotations'];
+
       if (labels != null && labels.isNotEmpty) {
         final dishName = labels[0]['description'];
-
-        // Search by Name using Spoonacular
         return await searchByName(dishName);
       }
     }
-    return null;
+    return [];
   }
 }
