@@ -10,7 +10,7 @@ class RecipeDetailsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Recipe Details'),
+        title: const Text('Recipes'),
         backgroundColor: Colors.lightBlue,
       ),
       body: recipes != null && recipes.isNotEmpty
@@ -47,17 +47,20 @@ class RecipeDetailsScreen extends StatelessWidget {
                       const SizedBox(height: 10),
                       recipe['image'] != null && recipe['image'].isNotEmpty
                           ? Center(
-                        child: Image.network(
-                          recipe['image'],
-                          height: 200,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.broken_image,
-                              size: 100,
-                              color: Colors.red,
-                            );
-                          },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15.0),
+                          child: Image.network(
+                            recipe['image'],
+                            height: 200,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(
+                                Icons.broken_image,
+                                size: 100,
+                                color: Colors.red,
+                              );
+                            },
+                          ),
                         ),
                       )
                           : const Center(
@@ -79,7 +82,6 @@ class RecipeDetailsScreen extends StatelessWidget {
                       ingredients.isNotEmpty
                           ? Column(
                         children: ingredients.map((ingredient) {
-                          final name = ingredient['name'] ?? 'Unknown ingredient';
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4.0),
                             child: Row(
@@ -88,7 +90,7 @@ class RecipeDetailsScreen extends StatelessWidget {
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    name,
+                                    ingredient,
                                     style: const TextStyle(fontSize: 18),
                                   ),
                                 ),
@@ -125,7 +127,7 @@ class RecipeDetailsScreen extends StatelessWidget {
           : const Center(
         child: Text(
           'No recipe data found.',
-          style: TextStyle(fontSize: 18, color: Colors.red),
+          style: TextStyle(fontSize: 16, color: Colors.red),
         ),
       ),
     );

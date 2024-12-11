@@ -19,7 +19,6 @@ class AIService {
 
       if (data['results'] != null && data['results'] is List) {
         final filteredResults = (data['results'] as List).where((result) {
-          // Check if both ingredients and instructions exist and are not empty
           final ingredients = result['extendedIngredients'];
           final instructions = result['analyzedInstructions'];
           return ingredients != null &&
@@ -27,16 +26,20 @@ class AIService {
               instructions != null &&
               instructions.isNotEmpty;
         }).map((result) {
-          // Extract and format the instructions into a single string
-          final instructionSteps = result['analyzedInstructions'][0]['steps']
-              .map((step) => step['step'])
+          final formattedIngredients = (result['extendedIngredients'] as List)
+              .map((ingredient) =>
+          '${ingredient['amount']} ${ingredient['unit']} ${ingredient['name']}')
+              .toList();
+
+          final instructionSteps = (result['analyzedInstructions'][0]['steps'] as List)
+              .map((step) => '• ${step['step']}')
               .join('\n');
 
           return {
             'id': result['id'],
             'title': result['title'],
             'image': result['image'],
-            'ingredients': result['extendedIngredients'],
+            'ingredients': formattedIngredients,
             'instructions': instructionSteps,
           };
         }).toList();
@@ -44,7 +47,6 @@ class AIService {
         return filteredResults;
       }
     }
-
     return [];
   }
 
