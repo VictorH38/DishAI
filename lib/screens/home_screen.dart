@@ -1,4 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import '../services/image_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -8,24 +11,44 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final TextEditingController _searchController = TextEditingController();
+  File? _selectedImage;
+  final ImageService _imageService = ImageService();
 
-  void _navigateToRecipeDetails(String query) {
-    Navigator.pushNamed(
-      context,
-      '/recipeDetails',
-      arguments: {'query': query},
-    );
+  Future<void> _selectImage() async {
+    final File? image = await _imageService.pickImage(ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        _selectedImage = image;
+      });
+
+      Navigator.pushNamed(
+        context,
+        '/recipeDetails',
+        arguments: {'imageFile': image},
+      );
+    }
+  }
+
+  Future<void> _takePhoto() async {
+    final File? image = await _imageService.pickImage(ImageSource.camera);
+    if (image != null) {
+      setState(() {
+        _selectedImage = image;
+      });
+
+      Navigator.pushNamed(
+        context,
+        '/recipeDetails',
+        arguments: {'imageFile': image},
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'DishAI',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text('DishAI', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.lightBlue,
       ),
       body: Padding(
@@ -34,7 +57,6 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             TextField(
-              controller: _searchController,
               decoration: InputDecoration(
                 labelText: 'Search for a dish',
                 border: OutlineInputBorder(
@@ -43,29 +65,33 @@ class _HomeScreenState extends State<HomeScreen> {
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.search),
                   onPressed: () {
-                    if (_searchController.text.isNotEmpty) {
-                      _navigateToRecipeDetails(_searchController.text);
-                    }
+                    // Handle search logic
                   },
                 ),
               ),
             ),
             const SizedBox(height: 20),
-            const Center(child: Text('OR', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+            const Center(
+              child: Text('OR', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ),
             const SizedBox(height: 20),
             Center(
               child: ElevatedButton.icon(
-                onPressed: () {
-                  // Code for uploading or taking a photo
+                onPressed: () async {
+                  await _selectImage();
+                },
+                icon: const Icon(Icons.upload_file),
+                label: const Text('Upload a Photo'),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Center(
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  await _takePhoto();
                 },
                 icon: const Icon(Icons.camera_alt),
-                label: const Text('Take or Upload a Photo'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.lightBlue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
+                label: const Text('Take a Photo'),
               ),
             ),
           ],
