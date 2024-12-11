@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/home_screen.dart';
 import 'screens/recipe_details_screen.dart';
 import 'screens/favorites_screen.dart';
 
-void main() {
+Future<void> main() async {
+  await dotenv.load(fileName: "assets/.env");
   runApp(const DishAIApp());
 }
 
@@ -21,7 +23,7 @@ class DishAIApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const HomeScreen(),
-        // '/recipeDetails': (context) => const RecipeDetailsScreen(),
+        '/recipeDetails': (context) => const RecipeDetailsScreen(),
         // '/favorites': (context) => const FavoritesScreen(),
       },
     );

@@ -15,26 +15,49 @@ class _HomeScreenState extends State<HomeScreen> {
   final AIService _aiService = AIService();
   final ImagePicker _imagePicker = ImagePicker();
 
+  bool _isLoading = false;
+
   Future<void> _searchDish() async {
     if (_searchController.text.isNotEmpty) {
+      setState(() {
+        _isLoading = true;
+      });
+
       final result = await _aiService.searchByName(_searchController.text);
+      _searchController.clear();
       _navigateToRecipeDetails(result);
+
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   Future<void> _uploadPhoto() async {
     final XFile? image = await _imagePicker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
+    if (image != null && mounted) {
+      setState(() {
+        _isLoading = true;
+      });
       final result = await _aiService.searchByImage(File(image.path));
       _navigateToRecipeDetails(result);
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   Future<void> _takePhoto() async {
     final XFile? image = await _imagePicker.pickImage(source: ImageSource.camera);
-    if (image != null) {
+    if (image != null && mounted) {
+      setState(() {
+        _isLoading = true;
+      });
       final result = await _aiService.searchByImage(File(image.path));
       _navigateToRecipeDetails(result);
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -69,7 +92,9 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('DishAI', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.lightBlue,
       ),
-      body: Padding(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
