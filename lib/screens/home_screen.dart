@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/ai_service.dart';
@@ -39,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoading = true;
       });
 
-      final results = await _aiService.searchByImage(File(image.path));
+      final results = await _aiService.searchByImage(image);
       _navigateToRecipeDetails(results);
 
       setState(() {
@@ -55,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoading = true;
       });
 
-      final results = await _aiService.searchByImage(File(image.path));
+      final results = await _aiService.searchByImage(image);
       _navigateToRecipeDetails(results);
 
       setState(() {
