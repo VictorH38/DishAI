@@ -13,10 +13,10 @@ class DishAIApp extends StatefulWidget {
   const DishAIApp({super.key});
 
   @override
-  _DishAIAppState createState() => _DishAIAppState();
+  DishAIAppState createState() => DishAIAppState();
 }
 
-class _DishAIAppState extends State<DishAIApp> {
+class DishAIAppState extends State<DishAIApp> {
   final Set<Map<String, dynamic>> _favorites = {};
 
   void _toggleFavorite(Map<String, dynamic> recipe) {
