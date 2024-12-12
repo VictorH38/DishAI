@@ -1,32 +1,29 @@
 import 'package:flutter/material.dart';
 
-class RecipeDetailsScreen extends StatelessWidget {
-  final List<Map<String, dynamic>>? recipes;
-  final Set<Map<String, dynamic>>? favorites;
-  final void Function(Map<String, dynamic>)? toggleFavorite;
+class FavoritesScreen extends StatelessWidget {
+  final Set<Map<String, dynamic>> favorites;
+  final void Function(Map<String, dynamic>) toggleFavorite;
 
-  const RecipeDetailsScreen({
+  const FavoritesScreen({
     super.key,
-    this.recipes,
-    this.favorites,
-    this.toggleFavorite,
+    required this.favorites,
+    required this.toggleFavorite,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Recipes'),
+        title: const Text('Favorites'),
         backgroundColor: Colors.lightBlue,
       ),
-      body: recipes != null && recipes!.isNotEmpty
+      body: favorites.isNotEmpty
           ? Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView.builder(
-          itemCount: recipes!.length,
+          itemCount: favorites.length,
           itemBuilder: (context, index) {
-            final recipe = recipes![index];
-            final isFavorite = favorites?.contains(recipe) ?? false;
+            final recipe = favorites.elementAt(index);
             final ingredients = recipe['ingredients'] as List<dynamic>? ?? [];
             final instructions = recipe['instructions'] ?? 'Instructions not available.';
 
@@ -132,12 +129,12 @@ class RecipeDetailsScreen extends StatelessWidget {
                       top: 10,
                       right: 10,
                       child: IconButton(
-                        icon: Icon(
-                          isFavorite ? Icons.star : Icons.star_border,
-                          color: isFavorite ? Colors.yellow : Colors.grey,
+                        icon: const Icon(
+                          Icons.star,
+                          color: Colors.yellow,
                           size: 32,
                         ),
-                        onPressed: () => toggleFavorite?.call(recipe),
+                        onPressed: () => toggleFavorite(recipe),
                       ),
                     ),
                   ],
@@ -149,8 +146,8 @@ class RecipeDetailsScreen extends StatelessWidget {
       )
           : const Center(
         child: Text(
-          'No recipe data found.',
-          style: TextStyle(fontSize: 16, color: Colors.red),
+          'No favorites added yet.',
+          style: TextStyle(fontSize: 18, color: Colors.grey),
         ),
       ),
     );

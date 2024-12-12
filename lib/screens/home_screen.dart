@@ -3,7 +3,9 @@ import 'package:image_picker/image_picker.dart';
 import '../services/ai_service.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final void Function(List<Map<String, dynamic>>) onNavigateToRecipeDetails;
+
+  const HomeScreen({super.key, required this.onNavigateToRecipeDetails});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -23,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       final results = await _aiService.searchByName(_searchController.text);
       _searchController.clear();
-      _navigateToRecipeDetails(results);
+      widget.onNavigateToRecipeDetails(results);
 
       setState(() {
         _isLoading = false;
@@ -39,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
 
       final results = await _aiService.searchByImage(image);
-      _navigateToRecipeDetails(results);
+      widget.onNavigateToRecipeDetails(results);
 
       setState(() {
         _isLoading = false;
@@ -55,40 +57,12 @@ class _HomeScreenState extends State<HomeScreen> {
       });
 
       final results = await _aiService.searchByImage(image);
-      _navigateToRecipeDetails(results);
+      widget.onNavigateToRecipeDetails(results);
 
       setState(() {
         _isLoading = false;
       });
     }
-  }
-
-  void _navigateToRecipeDetails(List<Map<String, dynamic>> results) {
-    if (results.isNotEmpty) {
-      Navigator.pushNamed(
-        context,
-        '/recipeDetails',
-        arguments: results,
-      );
-    } else {
-      _showErrorDialog('No recipes found.');
-    }
-  }
-
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -118,7 +92,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 20),
             const Center(
-              child: Text('OR', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              child: Text(
+                'OR',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
             ),
             const SizedBox(height: 20),
             Center(
