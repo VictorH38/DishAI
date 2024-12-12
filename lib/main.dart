@@ -17,7 +17,6 @@ class DishAIApp extends StatefulWidget {
 }
 
 class _DishAIAppState extends State<DishAIApp> {
-  // Manage the favorites as a Set to avoid duplicates
   final Set<Map<String, dynamic>> _favorites = {};
 
   void _toggleFavorite(Map<String, dynamic> recipe) {
