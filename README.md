@@ -1,16 +1,13 @@
-# dish_ai
+# DishAI
 
-DishAI is an AI-powered recipe app that lets you discover, cook, and save recipes by uploading dish photos or searching by name.
+## Introduction
+DishAI is a recipe app designed to make cooking fun and easy. Powered by AI, DishAI allows users to upload a photo of a dish or search by name to discover recipes with detailed instructions and ingredients. Users can also save their favorite recipes for quick access later.
 
-## Getting Started
+## Features
+- **Photo & Name Search:** Upload a dish photo or search by name to discover delicious recipes.
+- **Recipe Details:** View clear, step-by-step instructions and a complete list of ingredients.
+- **Favorites Management:** Save your favorite recipes for easy future access.
+- **Cross-Platform Compatibility:** Enjoy a consistent experience on both Android and web platforms.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Author
+- Victor Hoang
